@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -30,11 +31,11 @@ namespace SynVideoDownloader
                 htmlDocument.LoadHtml(html);
 
                 var urlFound = htmlDocument.DocumentNode.Descendants("meta").Where(x => x.GetAttributeValue("property", "").Equals("og:video:url")).ToList();
-                if (urlFound.Count == 1)
+                if (urlFound.Count == 0)
                 {
                     var videoUrl = urlFound[0].GetAttributeValue("content", "");
                     _webClient = new WebClient();
-                    _webClient.DownloadFileAsync(new Uri(videoUrl), $"{FileName}.mp4");
+                    _webClient.DownloadFileAsync(new Uri(videoUrl), FileName);
                     _webClient.DownloadProgressChanged += DownloadProgressEventHandler;
                     _webClient.DownloadFileCompleted += DownloadCompletedEventHandler;
                 }
@@ -48,9 +49,29 @@ namespace SynVideoDownloader
 
                 await Task.Delay(-1);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e);
+                Console.WriteLine("Application exploded. Please locate ErrorReport.txt and send it to my developer.");
+                var filePath = $"{Environment.CurrentDirectory}\\ErrorReport.txt";
+                await using (var writer = new StreamWriter(filePath, true))
+                {
+                    writer.WriteLine("-----------------------------------------------------------------------------");
+                    writer.WriteLine("Date : " + DateTime.UtcNow.ToLongDateString());
+                    writer.WriteLine($"Video URL: {VideoUrl}");
+                    writer.WriteLine($"File Name: {FileName}");
+                    writer.WriteLine("Operating System Version: {0}", Environment.OSVersion.Version);
+                    writer.WriteLine("Operating System Platform: {0}", Environment.OSVersion.Platform);
+                    writer.WriteLine();
+
+                    while (ex != null)
+                    {
+                        writer.WriteLine(ex.GetType().FullName);
+                        writer.WriteLine("Message : " + ex.Message);
+                        writer.WriteLine("StackTrace : " + ex.StackTrace);
+
+                        ex = ex.InnerException;
+                    }
+                }
                 throw;
             }
         }
@@ -102,7 +123,7 @@ namespace SynVideoDownloader
             }
 
             Console.WriteLine("Enter the name of the video you'd like to download. Do not provide a file extension.");
-            FileName = Console.ReadLine();
+            FileName = $"{Console.ReadLine()}.mp4";
         }
 
         private async void DetermineRetryApplication(bool initialRetry = true)
