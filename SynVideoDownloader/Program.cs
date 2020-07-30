@@ -10,8 +10,8 @@ namespace SynVideoDownloader
     {
         private static VideoInformation _videoInfo;
 
-        static void Main(string[] args) => StartWebsiteScrape().GetAwaiter().GetResult();
-        private static async Task StartWebsiteScrape()
+        static void Main(string[] args) => StartProgram().GetAwaiter().GetResult();
+        private static async Task StartProgram()
         {
 
             try
