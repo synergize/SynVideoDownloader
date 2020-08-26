@@ -24,6 +24,7 @@ namespace SynVideoDownloader.Selenium
                 var edgeService = EdgeDriverService.CreateChromiumService($"{programDirectory}\\Drivers", $"{DriverName}.exe");
                 edgeService.SuppressInitialDiagnosticInformation = true;
                 edgeService.HideCommandPromptWindow = true;
+
                 var options = new EdgeOptions {UseChromium = true};
                 options.AddArgument("headless");
                 options.AddArgument("disable-gpu");
