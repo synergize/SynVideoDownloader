@@ -2,12 +2,16 @@
 using System.Diagnostics;
 using System.Threading;
 using SynVideoDownloader.Context;
+using SynVideoDownloader.Enums;
 using SynVideoDownloader.Managers;
+using SynVideoDownloader.Selenium;
 
 namespace SynVideoDownloader.Helpers
 {
-    public static class ApplicationNavigation
+    public class ApplicationNavigation : SeleniumBase
     {
+        public static VideoInformation VideoInfo = new VideoInformation();
+
         /// <summary>
         /// Logic to determine if the user wants to retry. 
         /// </summary>
@@ -35,16 +39,34 @@ namespace SynVideoDownloader.Helpers
             var closeDuration = new TimeSpan(0, 0, 0, duration);
             var iteration = closeDuration.Seconds;
             var closeTimer = new Stopwatch();
-
+            TearDown();
             closeTimer.Start();
             while (closeTimer.Elapsed < closeDuration)
             {
-                Console.Write("\rThis program will self destruct {0} seconds ", iteration);
+                Console.Write("\rThis program will self destruct in {0} seconds ", iteration);
                 --iteration;
                 Thread.Sleep(1000);
             }
             closeTimer.Stop();
             Environment.Exit(0);
+        }
+
+        public static void RestartApplication(int duration = 10)
+        {
+            var closeDuration = new TimeSpan(0, 0, 0, duration);
+            var iteration = closeDuration.Seconds;
+            var closeTimer = new Stopwatch();
+            TearDown();
+            closeTimer.Start();
+            while (closeTimer.Elapsed < closeDuration)
+            {
+                Console.Write("\rThis program will restart in {0} seconds ", iteration);
+                --iteration;
+                Thread.Sleep(1000);
+            }
+            closeTimer.Stop();
+            Console.Clear();
+            StartApplicationProcess();
         }
 
         /// <summary>
@@ -71,9 +93,9 @@ namespace SynVideoDownloader.Helpers
         /// Logic to handle the inputs from the user to determine the video we're going to download for them.
         /// </summary>
         /// <returns></returns>
-        public static VideoInformation StartApplicationProcess()
+        public static void StartApplicationProcess()
         {
-            var videoInfo = new VideoInformation();
+            VideoInfo = new VideoInformation();
             while (true)
             {
                 Console.WriteLine($"===========================================================================");
@@ -83,8 +105,8 @@ namespace SynVideoDownloader.Helpers
                 Console.WriteLine("\n");
                 Console.WriteLine("Enter the URL of the video you'd like to download.");
 
-                videoInfo.VideoUrl = Console.ReadLine() ?? "";
-                var validateHyperlink = Uri.TryCreate(videoInfo.VideoUrl, UriKind.Absolute, out var uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+                VideoInfo.VideoUrl = Console.ReadLine() ?? "";
+                var validateHyperlink = Uri.TryCreate(VideoInfo.VideoUrl, UriKind.Absolute, out var uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
                 if (!validateHyperlink)
                 {
                     Console.Clear();
@@ -93,21 +115,24 @@ namespace SynVideoDownloader.Helpers
                     continue;
                 }
 
-                Console.WriteLine("Enter the name of the video you'd like to download. Do not provide a file extension.");
-                videoInfo.FileName = $"{Console.ReadLine()}";
-                var downloadManager = new VideoDownloadManager(videoInfo);
-                if (uriResult.Host == "www.youtube.com")
+                Console.WriteLine("\nEnter the name of the video you'd like to download. Do not provide a file extension.");
+                VideoInfo.FileName = $"{Console.ReadLine()}";
+                Console.WriteLine("\nLocating video to download. This can take some time..");
+                var downloadManager = new VideoDownloadManager(VideoInfo);
+
+                switch (uriResult.Host)
                 {
-                    // youtube logic
-                }
-                else
-                {
-                    downloadManager.DownloadStreamableVideo();
+                    case "www.youtube.com":
+                        break;
+                    case "streamable.com":
+                        downloadManager.DownloadStreamableVideo(VideoSource.Streamable);
+                        break;
+                    case "www.twitch.tv":
+                        downloadManager.DownloadStreamableVideo(VideoSource.TwitchClip);
+                        break;
                 }
                 break;
             }
-
-            return videoInfo;
         }
     }
 }

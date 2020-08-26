@@ -3,6 +3,7 @@
     public enum VideoSource
     {
         Streamable,
-        Youtube
+        Youtube,
+        TwitchClip
     }
 }
