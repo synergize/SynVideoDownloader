@@ -1,4 +1,7 @@
 # SynVideoDownloader
 Scrapes a designated URL for a video and downloads it.
-This has only been tested using Streamable at the moment.
-There are future plans to allow for this to support major platforms. 
+
+Supported Websites:
+- [Youtube](https://www.youtube.com/)
+- [Twitch Clips](https://www.twitch.tv/timthetatman/clip/ArbitraryImportantPoxNononoCat)
+- [Streamable](https://streamable.com/fhfo5m)
