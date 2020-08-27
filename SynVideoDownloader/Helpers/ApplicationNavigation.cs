@@ -99,8 +99,8 @@ namespace SynVideoDownloader.Helpers
             while (true)
             {
                 Console.WriteLine($"===========================================================================");
-                Console.WriteLine("Application developed by Coaction. Currently only tested against streamable.");
-                Console.WriteLine("                  However, other websites might work.                       ");
+                Console.WriteLine("                  Application developed by Coaction.                        ");
+                Console.WriteLine("        Currently Supported: Youtube, TwitchClips and Streamable            ");
                 Console.WriteLine($"===========================================================================");
                 Console.WriteLine("\n");
                 Console.WriteLine("Enter the URL of the video you'd like to download.");

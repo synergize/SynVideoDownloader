@@ -89,10 +89,8 @@ namespace SynVideoDownloader.Managers
                         var stream = await youtube.Videos.Streams.GetAsync(streamInfo);
 
                         // Download the stream to file
-                        IProgress<double> progress = new Progress<double>();
                         var youtubeDownload = youtube.Videos.Streams.DownloadAsync(streamInfo,
-                                $"{Environment.CurrentDirectory}\\{VideoInfo.FileName}.{streamInfo.Container}",
-                                progress).ConfigureAwait(true).GetAwaiter();
+                                $"{Environment.CurrentDirectory}\\{VideoInfo.FileName}.{streamInfo.Container}").ConfigureAwait(true).GetAwaiter();
                         youtubeDownload.OnCompleted(EventHandlersManager.DownloadCompleteMessaging);
                     }
                     break;
