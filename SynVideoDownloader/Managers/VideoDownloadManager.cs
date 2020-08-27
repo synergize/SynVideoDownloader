@@ -10,6 +10,11 @@ using SynVideoDownloader.Enums;
 using SynVideoDownloader.Helpers;
 using SynVideoDownloader.Logger;
 using SynVideoDownloader.Selenium;
+using YoutubeExplode;
+using YoutubeExplode.Videos.Streams;
+using System.Threading.Tasks;
+using YoutubeExplode.Videos;
+
 
 namespace SynVideoDownloader.Managers
 {
@@ -29,13 +34,11 @@ namespace SynVideoDownloader.Managers
         {
             string videoUrl = null;
 
+            var httpClient = new HttpClient();
+            var html = await httpClient.GetStringAsync(new Uri(VideoInfo.VideoUrl));
             switch (source)
             {
                 case VideoSource.Streamable:
-
-                    var httpClient = new HttpClient();
-                    var html = await httpClient.GetStringAsync(new Uri(VideoInfo.VideoUrl));
-
                     var htmlDocument = new HtmlDocument();
                     htmlDocument.LoadHtml(html);
 
@@ -71,11 +74,36 @@ namespace SynVideoDownloader.Managers
                         ApplicationNavigation.DetermineRetryApplication();
                     }
                     break;
+                case VideoSource.Youtube:
+                    var youtube = new YoutubeClient(httpClient);
+                    var video = await youtube.Videos.GetAsync(VideoInfo.VideoUrl); 
+                    var streamManifest = await youtube.Videos.Streams.GetManifestAsync(video.Id);
+                    
+                    // ...or highest quality MP4 video-only stream
+                    var streamInfo = streamManifest
+                        .GetMuxed().WithHighestVideoQuality();
+
+                    if (streamInfo != null)
+                    {
+                        // Get the actual stream
+                        var stream = await youtube.Videos.Streams.GetAsync(streamInfo);
+
+                        // Download the stream to file
+                        IProgress<double> progress = new Progress<double>();
+                        var youtubeDownload = youtube.Videos.Streams.DownloadAsync(streamInfo,
+                                $"{Environment.CurrentDirectory}\\{VideoInfo.FileName}.{streamInfo.Container}",
+                                progress).ConfigureAwait(true).GetAwaiter();
+                        youtubeDownload.OnCompleted(EventHandlersManager.DownloadCompleteMessaging);
+                    }
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(source), source, "Currently unsupported.");
             }
 
-            StartDownload(videoUrl);
+            if (source != VideoSource.Youtube)
+            {
+                StartDownload(videoUrl);
+            }
         }
 
         private void StartDownload(string videoUrl)

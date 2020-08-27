@@ -25,24 +25,29 @@ namespace SynVideoDownloader.Managers
         {
             if (e.Error == null)
             {
-                Console.Clear();
-                Console.WriteLine("Download Complete!");
-                Console.WriteLine("Would you like to download another? (y/n)");
-                if (ApplicationNavigation.DetermineYesOrNo())
-                {
-                    Console.Clear();
-                    ApplicationNavigation.StartApplicationProcess();
-                }
-                else
-                {
-                    ApplicationNavigation.CloseApplication();
-                }
+                DownloadCompleteMessaging();
             }
             else
             {
                 Console.Clear();
                 Console.WriteLine($"Download failed due to {e.Error?.Message}.");
                 ApplicationNavigation.DetermineRetryApplication();
+            }
+        }
+
+        public static void DownloadCompleteMessaging()
+        {
+            Console.Clear();
+            Console.WriteLine("Download Complete!");
+            Console.WriteLine("Would you like to download another? (y/n)");
+            if (ApplicationNavigation.DetermineYesOrNo())
+            {
+                Console.Clear();
+                ApplicationNavigation.StartApplicationProcess();
+            }
+            else
+            {
+                ApplicationNavigation.CloseApplication();
             }
         }
     }

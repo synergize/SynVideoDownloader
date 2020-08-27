@@ -20,6 +20,7 @@
     <PackageReference Include="HtmlAgilityPack" Version="1.11.24" />
     <PackageReference Include="Microsoft.Edge.SeleniumTools" Version="3.141.2" />
     <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
+    <PackageReference Include="YoutubeExplode" Version="5.1.4" />
   </ItemGroup>
 
 </Project>

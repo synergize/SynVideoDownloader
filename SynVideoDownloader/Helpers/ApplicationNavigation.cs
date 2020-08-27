@@ -123,12 +123,17 @@ namespace SynVideoDownloader.Helpers
                 switch (uriResult.Host)
                 {
                     case "www.youtube.com":
+                        downloadManager.DownloadStreamableVideo(VideoSource.Youtube);
                         break;
                     case "streamable.com":
                         downloadManager.DownloadStreamableVideo(VideoSource.Streamable);
                         break;
                     case "www.twitch.tv":
                         downloadManager.DownloadStreamableVideo(VideoSource.TwitchClip);
+                        break;
+                    default:
+                        Console.WriteLine($"{uriResult.Host} isn't currently supported.");
+                        DetermineRetryApplication();
                         break;
                 }
                 break;
