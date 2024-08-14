@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using HtmlAgilityPack;
 using OpenQA.Selenium;
 using SynVideoDownloader.Context;
@@ -39,24 +41,17 @@ namespace SynVideoDownloader.Managers
             switch (source)
             {
                 case VideoSource.Streamable:
-                    var htmlDocument = new HtmlDocument();
-                    htmlDocument.LoadHtml(html);
-
-                    List<HtmlNode> urlFound;
-
-                    urlFound = htmlDocument.DocumentNode.Descendants("meta").Where(x => x.GetAttributeValue("property", "").Equals("og:video:url")).ToList();
-
-                    switch (urlFound.Count)
+                    videoUrl = GetUrlFromMetaProperty(html, "og:video:url");
+                    if (string.IsNullOrEmpty(videoUrl))
                     {
-                        case 1:
-                        {
-                            videoUrl = urlFound.FirstOrDefault()?.GetAttributeValue("content", "");
-                            break;
-                        }
-                        case 0:
-                            Console.WriteLine($"No videos found. Website either not supported or contains no video to download.");
-                            ApplicationNavigation.DetermineRetryApplication();
-                            break;
+                        ApplicationNavigation.DetermineRetryApplication();
+                    }
+                    break;
+                case VideoSource.TrueVideo:
+                    videoUrl = GetUrlFromMetaProperty(html, "og:video");
+                    if (string.IsNullOrEmpty(videoUrl))
+                    {
+                        ApplicationNavigation.DetermineRetryApplication();
                     }
                     break;
                 case VideoSource.TwitchClip:
@@ -107,9 +102,27 @@ namespace SynVideoDownloader.Managers
         private void StartDownload(string videoUrl)
         {
             var webClient = new WebClient();
-            webClient.DownloadFileAsync(new Uri(videoUrl), $"{VideoInfo.FileName}.mp4");
+            var fileName = $"{VideoInfo.FileName}.mp4";
+            webClient.DownloadFileAsync(new Uri(videoUrl), $"{fileName}");
+
+            Console.WriteLine($"Starting download for {fileName}.mp4. Will be located in {Directory.GetCurrentDirectory()}\\{fileName}");
             webClient.DownloadProgressChanged += EventHandlersManager.DownloadProgressEventHandler;
             webClient.DownloadFileCompleted += EventHandlersManager.DownloadCompletedEventHandler;
+        }
+
+        private string GetUrlFromMetaProperty(string html, string propertyValue)
+        {
+            var htmlDocument = new HtmlDocument();
+            htmlDocument.LoadHtml(html);
+
+            var urlFound = htmlDocument.DocumentNode.Descendants("meta").Where(x => x.GetAttributeValue("property", "").Equals(propertyValue)).ToList();
+            if (urlFound.Count > 0)
+            {
+                return urlFound.FirstOrDefault()?.GetAttributeValue("content", "");
+            }
+
+            Console.WriteLine($"No videos found. Website either not supported or contains no video to download.");
+            return string.Empty;
         }
     }
 }

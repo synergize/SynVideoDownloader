@@ -53,10 +53,7 @@ namespace SynVideoDownloader.Selenium
                 edge.Close();
             }
 
-            if (WebDriver == null)
-            {
-                WebDriver = CreateDriver();
-            }
+            WebDriver ??= CreateDriver();
         }
     }
 }

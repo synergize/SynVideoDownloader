@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Net.Http;
 using SynVideoDownloader.Helpers;
 
 namespace SynVideoDownloader.Managers
@@ -37,7 +38,6 @@ namespace SynVideoDownloader.Managers
 
         public static void DownloadCompleteMessaging()
         {
-            Console.Clear();
             Console.WriteLine("Download Complete!");
             Console.WriteLine("Would you like to download another? (y/n)");
             if (ApplicationNavigation.DetermineYesOrNo())

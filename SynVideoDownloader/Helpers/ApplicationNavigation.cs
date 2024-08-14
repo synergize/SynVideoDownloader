@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Threading;
 using SynVideoDownloader.Context;
@@ -130,6 +131,9 @@ namespace SynVideoDownloader.Helpers
                         break;
                     case "www.twitch.tv":
                         downloadManager.DownloadStreamableVideo(VideoSource.TwitchClip);
+                        break;
+                    case "app.truvideo.com":
+                        downloadManager.DownloadStreamableVideo(VideoSource.TrueVideo);
                         break;
                     default:
                         Console.WriteLine($"{uriResult.Host} isn't currently supported.");

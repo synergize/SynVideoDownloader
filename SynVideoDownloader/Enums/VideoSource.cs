@@ -4,6 +4,7 @@
     {
         Streamable,
         Youtube,
-        TwitchClip
+        TwitchClip,
+        TrueVideo
     }
 }
