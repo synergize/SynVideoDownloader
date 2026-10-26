@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Reflection;
-using Microsoft.Edge.SeleniumTools;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Edge;
 
 namespace SynVideoDownloader.Selenium
 {
@@ -20,12 +19,11 @@ namespace SynVideoDownloader.Selenium
         {
             try
             {
-                var programDirectory = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                var edgeService = EdgeDriverService.CreateChromiumService($"{programDirectory}\\Drivers", $"{DriverName}.exe");
+                var edgeService = EdgeDriverService.CreateDefaultService();
                 edgeService.SuppressInitialDiagnosticInformation = true;
                 edgeService.HideCommandPromptWindow = true;
 
-                var options = new EdgeOptions {UseChromium = true};
+                var options = new EdgeOptions();
                 options.AddArgument("headless");
                 options.AddArgument("disable-gpu");
 
